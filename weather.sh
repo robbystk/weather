@@ -1,5 +1,7 @@
 #! /bin/bash
 
+url='http://forecast.weather.gov/MapClick.php'
+
 function location_from_homedir()
 {
     if [[ -f ~/.location ]]
@@ -40,4 +42,4 @@ case $# in
     ;;
 esac
 
-echo "lat=${lat}&lon=${lon}"
+curl -sGd "lat=${lat}&lon=${lon}&FcstType=digital" $url >forecast.html
