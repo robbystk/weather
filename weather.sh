@@ -1,47 +1,34 @@
 #! /usr/bin/python2
 
-import os
+from os.path import expanduser,isfile
+from sys import argv
 
-url='http://forecast.weather.gov/MapClick.php'
+url="http://forecast.weather.gov/MapClick.php"
+location_path="~/.location"
 
-# function location_from_homedir()
-# {
-#     if [[ -f ~/.location ]]
-#     then
-#         . ~/.location
-#     else
-#         echo "no location file in home directory" >&2
-#         exit 1
-#     fi
-# }
-# 
-# function location_from_file()
-# {
-#     if [[ -f $location_file ]]
-#     then
-#         . $location_file
-#     else
-#         echo "file $location_file not found" >&2
-#         location_from_homedir
-#     fi
-# }
-# 
-# case $# in
-#     0 )
-#         # not given location file
-#         location_from_homedir
-#     ;;
-#     1 )
-#         # given location file
-#         location_file=$1
-#         location_from_file
-# 
-#     ;;
-#     * )
-#         # wrong number of arguments
-#         echo "Usage: $0 [location file]" >&2
-#         exit 2
-#     ;;
-# esac
-# 
+def location_from_homedir():
+    if isfile(expanduser(location_path)):
+        with open(expanduser(location_path)) as f:
+            data = f.read()
+    else:
+        print "no location file at " + location_path
+
+
+def location_from_file(file):
+    try:
+        f = open(expanduser(file))
+    except:
+        print "file $location_file not found"
+        location_from_homedir
+
+if len(argv) == 1:
+    # not given location file
+    location_from_homedir()
+elif len(argv) == 2:
+    # given location file
+    location_from_file(argv[1])
+else:
+    # wrong number of arguments
+    print "Usage: $0 [location file]"
+
 # curl -sGd "lat=${lat}&lon=${lon}&FcstType=digital" $url >forecast.html
