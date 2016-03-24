@@ -2,21 +2,21 @@
 
 from os.path import expanduser,isfile
 from sys import argv
+from urllib import urlopen
 
-url="http://forecast.weather.gov/MapClick.php"
 location_path="~/.location"
 
 def location_from_homedir():
     if isfile(expanduser(location_path)):
         with open(expanduser(location_path)) as f:
-            data = f.read()
+            print "&".join(f.read().split("\n"))
     else:
         print "no location file at " + location_path
 
 
 def location_from_file(file):
     try:
-        f = open(expanduser(file))
+        f = open(expanduser(file),'r')
     except:
         print "file $location_file not found"
         location_from_homedir
@@ -31,4 +31,5 @@ else:
     # wrong number of arguments
     print "Usage: $0 [location file]"
 
-# curl -sGd "lat=${lat}&lon=${lon}&FcstType=digital" $url >forecast.html
+# url = "http://forecast.weather.gov/MapClick.php?" + data + "&FcstType=digitalDWML"
+# forecast = urlopen(url).read()
