@@ -32,5 +32,4 @@ else:
     print "Usage: $0 [location file]"
 
 url="http://forecast.weather.gov/MapClick.php?"+data+"FcstType=digitalDWML"
-print url
-# forecast = urlopen(url).read()
+forecast = urlopen(url).read()
