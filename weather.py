@@ -1,7 +1,7 @@
 #! /usr/bin/python2
 
 from os.path import expanduser,isfile
-from sys import argv
+import sys
 from urllib import urlopen
 
 location_path="~/.location"
@@ -12,24 +12,25 @@ def location_from_homedir():
             return "&".join(f.read().split("\n"))
     else:
         print("no location file at ", location_path)
+        sys.exit(2)
 
-
-def location_from_file(file):
+def location_from_file(location_file):
     try:
-        f = open(expanduser(file),'r')
+        f = open(expanduser(location_file),'r')
     except:
-        print("file ", location_file, " not found")
-        location_from_homedir
+        print("file ", location_file, " not found\nLooking in home directory")
+        return location_from_homedir()
 
-if len(argv) == 1:
+if len(sys.argv) == 1:
     # not given location file
     data = location_from_homedir()
-elif len(argv) == 2:
+elif len(sys.argv) == 2:
     # given location file
-    data = location_from_file(argv[1])
+    data = location_from_file(sys.argv[1])
 else:
     # wrong number of arguments
-    print("Usage: ", argv[0], " [location file]")
+    print("Usage: ", sys.argv[0], " [location file]")
+    sys.exit(1)
 
 url="http://forecast.weather.gov/MapClick.php?"+data+"FcstType=digitalDWML"
 forecast = urlopen(url).read()
