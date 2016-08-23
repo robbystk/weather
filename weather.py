@@ -11,14 +11,14 @@ def location_from_homedir():
         with open(expanduser(location_path)) as f:
             return "&".join(f.read().split("\n"))
     else:
-        print "no location file at " + location_path
+        print("no location file at ", location_path)
 
 
 def location_from_file(file):
     try:
         f = open(expanduser(file),'r')
     except:
-        print "file $location_file not found"
+        print("file ", location_file, " not found")
         location_from_homedir
 
 if len(argv) == 1:
@@ -29,7 +29,7 @@ elif len(argv) == 2:
     data = location_from_file(argv[1])
 else:
     # wrong number of arguments
-    print "Usage: $0 [location file]"
+    print("Usage: ", argv[0], " [location file]")
 
 url="http://forecast.weather.gov/MapClick.php?"+data+"FcstType=digitalDWML"
 forecast = urlopen(url).read()
