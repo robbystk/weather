@@ -3,6 +3,7 @@
 from os.path import expanduser,isfile
 import sys
 from urllib import urlopen
+import xml.etree.ElementTree as ElementTree
 
 location_path="~/.location"
 
@@ -34,3 +35,6 @@ else:
 
 url="http://forecast.weather.gov/MapClick.php?"+data+"FcstType=digitalDWML"
 forecast = urlopen(url).read()
+
+# parse xml
+root = ElementTree.fromstring(forecast)
