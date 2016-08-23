@@ -22,6 +22,13 @@ def location_from_file(location_file):
         print "file " + location_file + " not found"
         return location_from_homedir()
 
+# brute-force number from whatever
+def bf_number(thing):
+    try:
+        return float(thing)
+    except:
+        return 0
+
 if len(sys.argv) == 1:
     # not given location file
     data = location_from_homedir()
@@ -38,3 +45,11 @@ forecast = urlopen(url).read()
 
 # parse xml
 root = ElementTree.fromstring(forecast)
+
+# calculate integrated probabilistic quantitative precipitation forecast
+iqpf = 0
+for qpf_element in root.iter('hourly-qpf'):
+    for qpf in qpf_element.itertext():
+        iqpf += bf_number(qpf)
+
+print(iqpf)
