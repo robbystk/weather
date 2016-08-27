@@ -1,5 +1,6 @@
 #! /usr/bin/python2
 
+from __future__ import print_function
 from os.path import expanduser,isfile
 import sys
 from urllib import urlopen
@@ -7,19 +8,22 @@ import xml.etree.ElementTree as ElementTree
 
 location_path="~/.location"
 
+def printerr(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 def location_from_homedir():
     if isfile(expanduser(location_path)):
         with open(expanduser(location_path)) as f:
             return "&".join(f.read().split("\n"))
     else:
-        print "no location file at " + location_path
+        printerr("no location file at " + location_path)
         sys.exit(2)
 
 def location_from_file(location_file):
     try:
         f = open(expanduser(location_file),'r')
     except:
-        print "file " + location_file + " not found"
+        printerr("file " + location_file + " not found")
         return location_from_homedir()
 
 # brute-force number from whatever
@@ -37,7 +41,7 @@ elif len(sys.argv) == 2:
     data = location_from_file(sys.argv[1])
 else:
     # wrong number of arguments
-    print "Usage: " + sys.argv[0] + " [location file]"
+    printerr("Usage: " + sys.argv[0] + " [location file]")
     sys.exit(1)
 
 url="http://forecast.weather.gov/MapClick.php?"+data+"FcstType=digitalDWML"
