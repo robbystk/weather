@@ -50,10 +50,12 @@ forecast = urlopen(url).read()
 # parse xml
 root = ElementTree.fromstring(forecast)
 
-# calculate integrated probabilistic quantitative precipitation forecast
-iqpf = 0
-for qpf_element in root.iter('hourly-qpf'):
-    for qpf in qpf_element.itertext():
-        iqpf += bf_number(qpf)
+# calculate integrated quantitative precipitation forecast
+def precip(forecast_root):
+    iqpf = 0
+    for qpf_element in root.iter('hourly-qpf'):
+        for qpf in qpf_element.itertext():
+            iqpf += bf_number(qpf)
+    return iqpf
 
-print(iqpf)
+print(precip(root))
