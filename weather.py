@@ -4,6 +4,8 @@ from os.path import expanduser,isfile
 import sys
 from urllib.request import urlopen
 import xml.etree.ElementTree as ElementTree
+import scipy as sp
+import matplotlib.pyplot as plt
 
 location_path="~/.location"
 
@@ -60,16 +62,31 @@ def get_forecast(data):
     root = ElementTree.fromstring(forecast)
     return root
 
-# calculate integrated quantitative precipitation forecast
-def precip(forecast_root):
-    iqpf = 0
-    for qpf_element in forecast_root.iter('hourly-qpf'):
-        for qpf in qpf_element.itertext():
-            iqpf += bf_number(qpf)
-    return iqpf
+def get_series(forecast_root, variable, type_filter=None, transform=float):
+    def get_array(series, transform):
+        return sp.array([transform(point) for point in series.itertext()])
+
+    series_array = list(forecast_root.iter(variable))
+    if len(series_array) == 1 or type_filter == None:
+        return get_array(series_array[0], transform)
+    else:
+        for series in series_array:
+            if series.attrib['type'] == type_filter:
+                return get_array(series, transform)
+
+def rms(A):
+    return sp.sqrt(sp.mean(A**2))
 
 def main():
-    print(precip(get_forecast(get_location_data(sys.argv))))
+    forecast = get_forecast(get_location_data(sys.argv))
+    print("Precipitation: %.2f inches" %
+            sp.sum(get_series(forecast, 'hourly-qpf')))
+    temp = get_series(forecast, 'temperature', type_filter='hourly')
+    print("max/min: %.0f/%.0f F" % (sp.amax(temp), sp.amin(temp)))
+    print("dew point: %.0f F" %
+            sp.mean(get_series(forecast, 'temperature', type_filter='dew point')))
+    wind_chill = get_series(forecast, 'temperature', type_filter='wind chill')
+    print("wind chill: %.0f/%.0f F" % (sp.amax(wind_chill), sp.amin(wind_chill)))
 
 if __name__ == "__main__":
     main()
