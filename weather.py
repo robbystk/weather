@@ -1,9 +1,8 @@
-#! /usr/bin/python2
+#! /usr/bin/python
 
-from __future__ import print_function
 from os.path import expanduser,isfile
 import sys
-from urllib import urlopen
+from urllib.request import urlopen
 import xml.etree.ElementTree as ElementTree
 
 location_path="~/.location"
