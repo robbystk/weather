@@ -7,7 +7,6 @@ import sys
 from urllib import urlopen
 import xml.etree.ElementTree as ElementTree
 import numpy as np
-import matplotlib.pyplot as plt
 
 location_path="~/.location"
 
@@ -113,19 +112,6 @@ def get_wind(forecast_root):
     wind_direction = get_series(forecast_root, 'direction')
     return wind(wind_speed, wind_direction)
 
-def plot_wind(forecast_root):
-    wind = get_wind(forecast_root)
-    wind_NS = wind.speed * np.cos(wind.direction * np.pi / 180)
-    wind_EW = wind.speed * np.sin(wind.direction * np.pi / 180)
-
-    max_speed = np.amax(wind.speed)
-
-    plt.plot(wind_EW[:49], wind_NS[:49])
-    plt.axis([-max_speed, max_speed, -max_speed, max_speed])
-    plt.xlabel('East/West')
-    plt.ylabel('North/South')
-    plt.show()
-
 def main():
     forecast = get_forecast(get_location_data(sys.argv))
     print("Precipitation: %.2f inches" %
@@ -139,8 +125,6 @@ def main():
             np.mean(get_series(forecast, 'temperature', type_filter='dew point')))
     wind_chill = get_series(forecast, 'temperature', type_filter='wind chill')
     print("wind chill: %.0f/%.0f F" % (np.amax(wind_chill), np.amin(wind_chill)))
-
-    plot_wind(forecast)
 
 if __name__ == "__main__":
     main()
