@@ -1,10 +1,12 @@
-#! /usr/bin/python
+#! /usr/bin/python2
+
+from __future__ import print_function
 
 from os.path import expanduser,isfile
 import sys
-from urllib.request import urlopen
+from urllib import urlopen
 import xml.etree.ElementTree as ElementTree
-import scipy as sp
+import numpy as np
 import matplotlib.pyplot as plt
 
 location_path="~/.location"
@@ -64,7 +66,7 @@ def get_forecast(data):
 
 def get_series(forecast_root, variable, type_filter=None, transform=float):
     def get_array(series, transform):
-        return sp.array([transform(point) for point in series.itertext()])
+        return np.array([transform(point) for point in series.itertext()])
 
     series_array = list(forecast_root.iter(variable))
     if len(series_array) == 1 or type_filter == None:
@@ -75,7 +77,7 @@ def get_series(forecast_root, variable, type_filter=None, transform=float):
                 return get_array(series, transform)
 
 def rms(A):
-    return sp.sqrt(sp.mean(A**2))
+    return np.sqrt(np.mean(A**2))
 
 class wind:
     def __init__(self, speed, direction):
@@ -84,21 +86,21 @@ class wind:
 
     @property
     def ns_comp(self):
-        return self.speed * sp.cos(self.direction * sp.pi / 180)
+        return self.speed * np.cos(self.direction * np.pi / 180)
 
     @property
     def ew_comp(self):
-        return self.speed * sp.sin(self.direction * sp.pi / 180)
+        return self.speed * np.sin(self.direction * np.pi / 180)
 
     def mean_direction(self):
-        mean_ns = sp.mean(self.ns_comp)
-        mean_ew = sp.mean(self.ew_comp)
-        angle = sp.arctan2(mean_ew, mean_ns) * 180 / sp.pi
+        mean_ns = np.mean(self.ns_comp)
+        mean_ew = np.mean(self.ew_comp)
+        angle = np.arctan2(mean_ew, mean_ns) * 180 / np.pi
         return angle
 
 def deg2str(angle):
-    # octant = sp.around(angle / 360 * 8) % 8
-    dodecant = sp.around(angle / 360 * 16) % 16
+    # octant = np.around(angle / 360 * 8) % 8
+    dodecant = np.around(angle / 360 * 16) % 16
     # dirs = {0: 'N', 1: 'NE', 2: 'E', 3: 'SE', 4: 'S', 5: 'SW', 6: 'W', 7: 'NW'}
     dirs = {0: 'N', 1: 'NNE', 2: 'NE', 3: 'ENE',
             4: 'E', 5: 'ESE', 6: 'SE', 7: 'SSE',
@@ -113,10 +115,10 @@ def get_wind(forecast_root):
 
 def plot_wind(forecast_root):
     wind = get_wind(forecast_root)
-    wind_NS = wind.speed * sp.cos(wind.direction * sp.pi / 180)
-    wind_EW = wind.speed * sp.sin(wind.direction * sp.pi / 180)
+    wind_NS = wind.speed * np.cos(wind.direction * np.pi / 180)
+    wind_EW = wind.speed * np.sin(wind.direction * np.pi / 180)
 
-    max_speed = sp.amax(wind.speed)
+    max_speed = np.amax(wind.speed)
 
     plt.plot(wind_EW[:49], wind_NS[:49])
     plt.axis([-max_speed, max_speed, -max_speed, max_speed])
@@ -127,16 +129,16 @@ def plot_wind(forecast_root):
 def main():
     forecast = get_forecast(get_location_data(sys.argv))
     print("Precipitation: %.2f inches" %
-            sp.sum(get_series(forecast, 'hourly-qpf')))
+            np.sum(get_series(forecast, 'hourly-qpf')))
     wind = get_wind(forecast)
     print("Wind speed: %.2f mph" % rms(wind.speed))
     print("Average wind direction: %s" % deg2str(wind.mean_direction()))
     temp = get_series(forecast, 'temperature', type_filter='hourly')
-    print("max/min: %.0f/%.0f F" % (sp.amax(temp), sp.amin(temp)))
+    print("max/min: %.0f/%.0f F" % (np.amax(temp), np.amin(temp)))
     print("dew point: %.0f F" %
-            sp.mean(get_series(forecast, 'temperature', type_filter='dew point')))
+            np.mean(get_series(forecast, 'temperature', type_filter='dew point')))
     wind_chill = get_series(forecast, 'temperature', type_filter='wind chill')
-    print("wind chill: %.0f/%.0f F" % (sp.amax(wind_chill), sp.amin(wind_chill)))
+    print("wind chill: %.0f/%.0f F" % (np.amax(wind_chill), np.amin(wind_chill)))
 
     plot_wind(forecast)
 
